@@ -1,0 +1,24 @@
+{
+  "token": "INSERT_YOUR_BOT_TOKEN_HERE",
+  "name": "my-bot",
+  "polling": 1,
+  "actions": [
+    {
+      "commands": [
+        "hi","hello"
+      ],
+      "templates": [
+        "Hello, {{.Sender.FirstName}}..."
+      ]
+    },
+    {
+      "commands": [
+        "/help"
+      ],
+      "templates": [
+        "Commands help example"
+      ]
+    }
+  ]
+}
+

@@ -22,3 +22,12 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+# Various
+*~
+*.iws
+*.ipr
+*.iml
+.idea/
+.idea
+.DS_Store

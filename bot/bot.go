@@ -52,6 +52,10 @@ func (b *Bot) SendMessage(recipient telebot.Recipient, message string, options *
 	return b.Tbot.SendMessage(recipient, message, options)
 }
 
+func (b *Bot) SendAudio(recipient telebot.Recipient, audio *telebot.Audio, options *telebot.SendOptions) error {
+	return b.Tbot.SendAudio(recipient, audio, options)
+}
+
 func (b *Bot) SentenceFromTemplate(temp string) (string) {
 
 	report, err := template.New("sentence").
@@ -115,7 +119,14 @@ func (b* Bot) Start() {
 			for _, action := range b.Actions {
 				if (b.check(action.Commands)) {
 					n := len(action.Templates)
-					b.SendMessage(message.Chat, b.SentenceFromTemplate(action.Templates[rand.Intn(n)]), nil)
+					answer := b.SentenceFromTemplate(action.Templates[rand.Intn(n)])
+					if strings.HasSuffix(answer, ".ogg") {
+						file, _ := telebot.NewFile(answer)
+						audio := telebot.Audio{File: file}
+						b.SendAudio(message.Chat, &audio, nil)
+					} else {
+						b.SendMessage(message.Chat, answer, nil)
+					}
 				}
 			}
 		}
@@ -125,8 +136,6 @@ func (b* Bot) Start() {
 			b.SendMessage(message.Chat, b.SentenceFromTemplate(b.Wakeup.Templates[rand.Intn(n)]), nil)
 			b.Silent = false
 		}
-
-		//log.Println(b)
 
 		if b.timeToSaySomethingStupid(b.Random.Frequency) {
 			n := len(b.Random.Templates)

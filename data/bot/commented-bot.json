@@ -58,6 +58,15 @@
       ]
     },
     {
+      // Audio test command. Telegram plays only opus encoded ogg files
+      "commands": [
+        "/audiotest"
+      ],
+      "templates": [
+        "./data/audio/osu.ogg"
+      ]
+    },
+    {
       "commands": [
         "/help"
       ],

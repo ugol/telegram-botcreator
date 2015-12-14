@@ -35,6 +35,6 @@ var fmap = map[string]interface{}{
 	"min":     math.Min,
 	"rnd":     func(a, b int) int { return rand.Intn(b - a + 1) + a },
 	"random":  func (s []string) (string) {return s[rand.Intn(len(s))]},
-	"randoms":  func (s string) (string) {a := strings.Split(s, "|"); return a[rand.Intn(len(a))]},
+	"randoms": func (s string) (string) {a := strings.Split(s, "|"); return a[rand.Intn(len(a))]},
 
 }

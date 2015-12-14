@@ -31,3 +31,9 @@ _testmain.go
 .idea/
 .idea
 .DS_Store
+
+# Specific project files
+releases
+data/audio
+data/bot/bot-test.json
+

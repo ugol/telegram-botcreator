@@ -1,7 +1,11 @@
 {
+  // The token identifies your bot. To obtain a token you need to talk with the botfather https://telegram.me/BotFather
   "token": "INSERT_YOUR_BOT_TOKEN_HERE",
+  // name is just an ID
   "name": "testbot",
+  // polling interval in seconds for the bot
   "polling": 1,
+  // Random actions, the bot tells one of the sentences on an average of 1/frequency messages received.
   "random": {
     "frequency": 10,
     "templates": [
@@ -10,6 +14,7 @@
       "Lorem ipsum"
     ]
   },
+  // special command to make the bot sleep. When sleeping the bot answers only to special commands
   "sleep": {
     "commands": [
       "/sleep"
@@ -18,6 +23,7 @@
       "Going to sleep, use '/wakeup' to bring me back... zzzz"
     ]
   },
+  // special command to wake up the bot if it's sleeping
   "wakeup": {
     "commands": [
       "/wakeup"
@@ -26,6 +32,7 @@
       "Here I am again, {{.Sender.FirstName}}!"
     ]
   },
+  // special command to check if the bot is sleeping. Notice the use of the .IsSleeping variable in the template
   "checkIfSleeping": {
     "commands": [
       "/areyousleeping"
@@ -34,12 +41,17 @@
       "{{if .IsSleeping}} Yes I am sleeping... wake me up please! {{else}} No, I'm not sleeping! {{end}}"
     ]
   },
+  // Normal commands. Are not executed if the bot is sleeping.
+  // If you want the bot to react to strings without the leading /, remember to register
+  // the bot to receive any message, setting the privacy accordingly with the /setprivacy command in botfather
   "actions": [
     {
+      // Every command can have different spellings
       "commands": [
         "hi",
         "hello"
       ],
+      // Every command can have different answers, chosen randomly
       "templates": [
         "Hello, {{.Sender.FirstName}}...",
         "Hi, {{.Sender.LastName}}!"

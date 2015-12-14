@@ -6,7 +6,6 @@ import (
 	"github.com/ugol/telegram-botcreator/bot"
 )
 
-//const dataFile = "data/bot/bot.json"
 const dataFile = "data/bot/bot-test.json"
 
 func main() {

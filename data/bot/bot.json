@@ -2,14 +2,6 @@
   "token": "INSERT_YOUR_BOT_TOKEN_HERE",
   "name": "testbot",
   "polling": 1,
-  "random": {
-    "frequency": 10,
-    "templates": [
-      "A random sentence...",
-      "Bla bla bla",
-      "Lorem ipsum"
-    ]
-  },
   "sleep": {
     "commands": [
       "/sleep"

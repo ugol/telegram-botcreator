@@ -5,15 +5,6 @@
   "name": "testbot",
   // polling interval in seconds for the bot
   "polling": 1,
-  // Random actions, the bot tells one of the sentences on an average of 1/frequency messages received.
-  "random": {
-    "frequency": 10,
-    "templates": [
-      "A random sentence...",
-      "Bla bla bla",
-      "Lorem ipsum"
-    ]
-  },
   // special command to make the bot sleep. When sleeping the bot answers only to special commands
   "sleep": {
     "commands": [

@@ -14,7 +14,7 @@ import (
 )
 
 type Bot struct {
-	Tbot            *telebot.Bot
+	*telebot.Bot
 	Token           string
 	Name            string
 	Silent          bool
@@ -24,7 +24,6 @@ type Bot struct {
 	Wakeup          Action
 	Sleep           Action
 	CheckIfSleeping Action
-	Random          RandomAction
 	Actions         []Action `json:"actions"`
 }
 
@@ -34,27 +33,30 @@ type chatContext struct {
 }
 
 type Action struct {
+	// Frequency represents how frequently the action will be executed.
+	// -1 means never
+	// 0 or 1 means every time
+	// any number n > 1 means n%
+	// example: 10 is a 10% frequency (1 out of 10)
+	Frequency int
 	Commands  []string
 	Templates []string
 }
 
-type RandomAction struct {
-	// RandomFrequency represents how frequently the bot will chat randomly. 1 means every msg, 10 means 1 out of 10 msgs and so on
-	Frequency int
-	Templates []string
+func (a *Action) Execute(b *Bot) {
+
+	n := len(a.Templates)
+	answer := b.SentenceFromTemplate(a.Templates[rand.Intn(n)])
+	if strings.HasSuffix(answer, ".ogg") {
+		file, _ := telebot.NewFile(answer)
+		audio := telebot.Audio{File: file}
+		b.SendAudio(b.LastMessage.Chat, &audio, nil)
+	} else {
+		b.SendMessage(b.LastMessage.Chat, answer, nil)
+	}
+
 }
 
-func (b *Bot) Listen(subscription chan <- telebot.Message, timeout time.Duration) {
-	b.Tbot.Listen(subscription, timeout)
-}
-
-func (b *Bot) SendMessage(recipient telebot.Recipient, message string, options *telebot.SendOptions) error {
-	return b.Tbot.SendMessage(recipient, message, options)
-}
-
-func (b *Bot) SendAudio(recipient telebot.Recipient, audio *telebot.Audio, options *telebot.SendOptions) error {
-	return b.Tbot.SendAudio(recipient, audio, options)
-}
 
 func (b *Bot) SentenceFromTemplate(temp string) (string) {
 
@@ -76,25 +78,37 @@ func (b *Bot) SentenceFromTemplate(temp string) (string) {
 
 func (b *Bot) SetLastMessage(msg telebot.Message) {
 	b.LastMessage = &msg
-	b.ChatContext = &chatContext {Sender: &(b.LastMessage.Sender), IsSleeping:b.Silent}
+	b.ChatContext = &chatContext{Sender: &(b.LastMessage.Sender), IsSleeping:b.Silent}
 }
 
-func (b *Bot) check(commands []string) (bool) {
+func (b *Bot) check(action Action) (bool) {
 
-	txt := strings.ToLower(b.LastMessage.Text)
-	for _, command := range commands {
-		if strings.Contains(txt, command) {
+	frequency := action.Frequency
+
+	if frequency == -1 {
+		return false
+	}
+
+	if frequency == 0 {
+		// 0 is the default value and means every time, as 1
+		frequency = 1
+	}
+
+	// rand.Intn(1) is always 0
+	if rand.Intn(frequency) == 0 {
+
+		if (action.Commands == nil) {
 			return true
+		}
+
+		txt := strings.ToLower(b.LastMessage.Text)
+		for _, command := range action.Commands {
+			if strings.Contains(txt, command) {
+				return true
+			}
 		}
 	}
 	return false
-}
-
-func (b *Bot) timeToSaySomethingStupid(frequency int) (bool) {
-	if frequency == 0 {
-		return false
-	}
-	return rand.Intn(frequency) == 0
 }
 
 func (b* Bot) Start() {
@@ -104,42 +118,26 @@ func (b* Bot) Start() {
 	for message := range messages {
 		b.SetLastMessage(message)
 
-		if (b.check(b.Sleep.Commands)) {
-			n := len(b.Sleep.Templates)
-			b.SendMessage(message.Chat, b.SentenceFromTemplate(b.Sleep.Templates[rand.Intn(n)]), nil)
+		if (b.check(b.Sleep)) {
+			b.Sleep.Execute(b)
 			b.Silent = true
 		}
 
-		if (b.check(b.CheckIfSleeping.Commands)) {
-			n := len(b.CheckIfSleeping.Templates)
-			b.SendMessage(message.Chat, b.SentenceFromTemplate(b.CheckIfSleeping.Templates[rand.Intn(n)]), nil)
+		if (b.check(b.CheckIfSleeping)) {
+			b.CheckIfSleeping.Execute(b)
 		}
 
 		if (!b.Silent) {
 			for _, action := range b.Actions {
-				if (b.check(action.Commands)) {
-					n := len(action.Templates)
-					answer := b.SentenceFromTemplate(action.Templates[rand.Intn(n)])
-					if strings.HasSuffix(answer, ".ogg") {
-						file, _ := telebot.NewFile(answer)
-						audio := telebot.Audio{File: file}
-						b.SendAudio(message.Chat, &audio, nil)
-					} else {
-						b.SendMessage(message.Chat, answer, nil)
-					}
+				if (b.check(action)) {
+					action.Execute(b)
 				}
 			}
 		}
 
-		if (b.check(b.Wakeup.Commands)) {
-			n := len(b.Wakeup.Templates)
-			b.SendMessage(message.Chat, b.SentenceFromTemplate(b.Wakeup.Templates[rand.Intn(n)]), nil)
+		if (b.check(b.Wakeup)) {
+			b.Wakeup.Execute(b)
 			b.Silent = false
-		}
-
-		if b.timeToSaySomethingStupid(b.Random.Frequency) {
-			n := len(b.Random.Templates)
-			b.SendMessage(message.Chat, b.SentenceFromTemplate(b.Random.Templates[rand.Intn(n)]), nil)
 		}
 
 	}
@@ -162,7 +160,7 @@ func OpenBot(name string) (*Bot, error) {
 		return nil, err
 	}
 
-	bot.Tbot, err = telebot.NewBot(bot.Token)
+	bot.Bot, err = telebot.NewBot(bot.Token)
 	if err != nil {
 		log.Fatal(err)
 	} else {

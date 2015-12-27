@@ -62,24 +62,24 @@ func (b* Bot) Start() {
 		b.SetLastMessage(message)
 
 		if (b.Sleep.canRun(b)) {
-			b.Sleep.Execute(b)
+			b.Sleep.execute(b)
 			b.Silent = true
 		}
 
 		if (b.CheckIfSleeping.canRun(b)) {
-			b.CheckIfSleeping.Execute(b)
+			b.CheckIfSleeping.execute(b)
 		}
 
 		if (!b.Silent) {
 			for _, action := range b.Actions {
 				if (action.canRun(b)) {
-					action.Execute(b)
+					action.execute(b)
 				}
 			}
 		}
 
 		if (b.Wakeup.canRun(b)) {
-			b.Wakeup.Execute(b)
+			b.Wakeup.execute(b)
 			b.Silent = false
 		}
 

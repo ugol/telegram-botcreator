@@ -17,7 +17,7 @@ type Action struct {
 	Templates []string
 }
 
-func (a *Action) Execute(b *Bot) {
+func (a *Action) execute(b *Bot) {
 
 	n := len(a.Templates)
 	answer := b.SentenceFromTemplate(a.Templates[rand.Intn(n)])
